@@ -5,8 +5,8 @@ image_size = (3, 250, 250)
 # HyperParams
 beta1 = 0.9 # for decay of first-momentum
 beta2 = 0.999 # for decay of second-momentum
-alpha = 3e-3 # initial learning rate
-t = 0.3 # tolerance for how close images should be to be called "same"
+alpha = 2e-4 # initial learning rate
+t = 0.2 # tolerance for how close images should be to be called "same"
 feature_vector_size = 128
 mini_batch_size = 16
 amount_of_epochs = 3
@@ -20,3 +20,6 @@ dReLU = np.vectorize(lambda x: 1 if x>0 else 0)
 
 linear = np.vectorize(lambda x: x)
 dlinear = np.vectorize(lambda x: 1)
+
+l2normalize = lambda vector: vector*(1/np.linalg.norm(vector))
+dl2normalize = lambda vector: (1/np.linalg.norm(vector))

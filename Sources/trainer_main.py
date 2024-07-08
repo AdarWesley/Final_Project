@@ -5,8 +5,9 @@ from Controllers.trainerController import TrainerController
 from Network.network import Network
 from Views.root import Root
 
+
 def main():
-    net = Network.loadNetwork()
+    net = None # change to loadNetwork() according to dropdown menu
 
     root = Root()
     model = TrainerModel(net)

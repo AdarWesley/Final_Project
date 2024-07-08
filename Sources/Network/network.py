@@ -8,6 +8,7 @@ import pickle
 from typing import Self
 import numpy as np
 from .globalVariables import *
+from datetime import datetime as dt
 
 # also acts as a record of which layers aren't trainable, as those are 'None' here
 activ_funcs =   [
@@ -77,11 +78,9 @@ class Network():
     
     def requires_learning(self, APN_triplet) -> bool:
         return self.triplet_loss(APN_triplet[0], APN_triplet[1], APN_triplet[2]) != 0
+    
     def dLossdAPN(self, APN_triplet):
         A, P, N = APN_triplet
-        #return np.array([((A-P)/self.euclid_dist(A, P))-((A-N)/self.euclid_dist(A, N)), 
-        #                 (P-A)/(self.euclid_dist(A, P)), 
-        #                 (A-N)/(self.euclid_dist(A, N))])
         return np.array([2*(N-P),
                          -2*(A-P),
                          2*(A-N)])
@@ -90,12 +89,13 @@ class Network():
         return (np.linalg.norm(v1-v2)**2)
     
     def saveNetwork(self):
-        with open("./NetworkState", 'wb') as f:
+        netName = "./NetworkState_" + str(dt.now()).replace(" ", "_").split(".")[0]
+        with open(netName, 'wb') as f:
             pickle.dump(self, f)
 
-    def loadNetwork() -> Self:
+    def loadNetwork(name) -> Self:
         try:
-            with open("./NetworkState", 'rb') as f:
+            with open(f"./{name}", 'rb') as f:
                 net : Self = pickle.load(f)
             net.set_activ_funcs()
             return net

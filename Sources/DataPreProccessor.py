@@ -28,7 +28,10 @@ class DataPreProccessor():
     
     @staticmethod
     def pre_proccess(arr : np.ndarray):
-        face_arr = DataPreProccessor.detectface(arr)[0] # arr and face_arr are RGB
+        try:
+            face_arr = DataPreProccessor.detectface(arr)[0] # arr and face_arr are RGB
+        except ValueError:
+            face_arr = arr
         if face_arr.shape[0] != face_arr.shape[1]:
             raise ValueError("cropped face isn't square")
         elif face_arr.shape[0] > 250:
@@ -47,9 +50,10 @@ class DataPreProccessor():
         if (len(faces) == 0):
             raise ValueError("No face detected in image.")
         elif (len(faces) > 1):
-            raise ValueError("more than one face detected in image.")
-        
-        (x, y, w, h) = faces[0]
+            x, y, w, h = DataPreProccessor.get_central_face(faces, grayscaleimage.shape)
+        else:
+            x, y, w, h = faces[0]
+
         cv2.rectangle(BGRimage, (x, y), (x+w, y+h), (0, 0, 0), 2)
         faceBGR = BGRimage[y:y+h, x:x+w]
 
@@ -58,6 +62,13 @@ class DataPreProccessor():
 
         return faceRGB, boundedImageRGB
 
+    @staticmethod
+    def get_central_face(faces, image_shape):
+        height, width = image_shape
+        center_x, center_y = width // 2, height // 2
+        distances = [abs((x + w/2) - center_x) + abs((y + h/2) - center_y) for x, y, w, h in faces]
+        return faces[distances.index(min(distances))]
+    
     def get_training_batch(self, batch_num):
         batch = self.triplets[batch_num*mini_batch_size : (batch_num+1)*mini_batch_size]
         batch_array = []

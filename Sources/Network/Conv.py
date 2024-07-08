@@ -1,5 +1,6 @@
 from .trainableLayer import TrainableLayer
 import numpy as np
+import numpy.typing as types
 from scipy.signal import fftconvolve
 
 class Conv(TrainableLayer):
@@ -9,10 +10,10 @@ class Conv(TrainableLayer):
     def calc(self, v : np.ndarray) -> np.ndarray:
         return self.Convolve3D(inputs=v, kernels=self.weights)
     
-    def Convolve3D(self, inputs : np.ndarray, kernels : np.ndarray, mode : str="same") -> np.ndarray:
+    def Convolve3D(self, inputs : types.NDArray[np.float64], kernels : types.NDArray[np.float64], mode : str="same") -> types.NDArray[np.float64]:
         # kernels shape is (count, depth, height, width)
         # inputs shape is (count_batch, count_APN, depths, height, width)
-        result = np.zeros(inputs.shape[:2]+(kernels.shape[0],)+inputs.shape[3:])
+        result : types.NDArray[np.float64]= np.zeros(inputs.shape[:2]+(kernels.shape[0],)+inputs.shape[3:])
 
         for i, triplet in enumerate(inputs[:, :, np.newaxis, ...]):
             for j, sample in enumerate(triplet):
@@ -31,7 +32,7 @@ class Conv(TrainableLayer):
         dL_dW = np.mean(np.sum(fftconvolve(padded_input_reshaped, dL_dO_reshaped, mode='valid', axes=[-2, -1]), 1), 0)
 
         return dL_dW
-    
+
     def get_gradient_inputs(self, dL_dO: np.ndarray, input_shape) -> np.ndarray:
         # dL_dO.shape & input_shape is (count_batch, count_APN, depth, height, width)
         # returns shape (count, depth, height, width)
